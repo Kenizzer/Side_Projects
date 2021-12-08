@@ -2,8 +2,8 @@
 title: "2002-2021 NFL Scores"
 author: "Kenizzer"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -80,7 +80,8 @@ ggplot(Scores, aes(x=Week, y=Score_differential)) +
 
 ggplot(Scores, aes(x=Week, y=Score_differential)) +
   geom_smooth(aes(as.numeric(Week), Score_differential), method = "loess") +
-  scale_x_continuous(breaks = seq(1,17,5)) +
+  scale_x_continuous(breaks = c(1,9,17)) +
+  scale_y_continuous(breaks = seq(7,21,7)) +
   facet_wrap(~Year) +
   ylab("Absolute Score Differential")
 ```
@@ -118,7 +119,7 @@ ggplot(Score_varience, aes(x=Year, y=Score_varience)) +
   geom_point(size = 3) +
   geom_line(aes(x=as.numeric(Year))) +
   theme(axis.text.x = element_text(angle = 45, hjust=1)) +
-  xlab("Score Differential Varience")
+  ylab("Score Differential Varience")
 ```
 
 
