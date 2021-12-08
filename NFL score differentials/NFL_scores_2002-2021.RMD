@@ -2,8 +2,8 @@
 title: "2002-2021 NFL Scores"
 author: "Kenizzer"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -78,12 +78,18 @@ ggplot(Scores, aes(x=Week, y=Score_differential)) +
   facet_wrap(~Year) +
   ylab("Absolute Score Differential")
 
-ggplot(Scores, aes(x=Week, y=Score_differential)) +
+x <- ggplot(Scores, aes(x=Week, y=Score_differential)) +
   geom_smooth(aes(as.numeric(Week), Score_differential), method = "loess") +
   scale_x_continuous(breaks = c(1,9,17)) +
   scale_y_continuous(breaks = seq(7,21,7)) +
   facet_wrap(~Year) +
   ylab("Absolute Score Differential")
+x
+```
+
+```{r, echo=FALSE}
+ggsave("2002-2021 Score Differential.png", x, dpi = 1200, height = 8, width = 12, units = "in")
+
 ```
 
 
