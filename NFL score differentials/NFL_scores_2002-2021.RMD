@@ -1,5 +1,5 @@
 ---
-title: "2002-2021 NFL Scores"
+title: "NFL 2002-2021 Score Differential"
 author: "Kenizzer"
 output:
   html_document: default
@@ -70,7 +70,7 @@ Team_colors <- c("SF"="#AA0000",
 ```
 
 
-## All teams
+## All teams, trend line
 ```{r}
 ggplot(Scores, aes(x=Week, y=Score_differential)) +
   geom_boxplot() +
@@ -92,9 +92,9 @@ ggsave("2002-2021 Score Differential.png", x, dpi = 1200, height = 8, width = 12
 
 ```
 
-
+# Variance plot 
 ```{r}
-Score_varience <- c(var(Scores[Scores$Year == 2002, ]$Score_differential),
+Score_variance <- c(var(Scores[Scores$Year == 2002, ]$Score_differential),
                     var(Scores[Scores$Year == 2003, ]$Score_differential),
                     var(Scores[Scores$Year == 2004, ]$Score_differential),
                     var(Scores[Scores$Year == 2005, ]$Score_differential),
@@ -114,14 +114,14 @@ Score_varience <- c(var(Scores[Scores$Year == 2002, ]$Score_differential),
                     var(Scores[Scores$Year == 2019, ]$Score_differential),
                     var(Scores[Scores$Year == 2020, ]$Score_differential),
                     var(Scores[Scores$Year == 2021, ]$Score_differential))
-Score_varience <- as.data.frame(Score_varience)
+Score_variance <- as.data.frame(Score_variance)
 
-Score_varience$Year <- c(2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,
+Score_variance$Year <- c(2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,
                          2012,2013,2014,2015,2016,2017,2018,2019,2020,2021)
-Score_varience$Year <- as.factor(Score_varience$Year)
+Score_variance$Year <- as.factor(Score_variance$Year)
 
 
-ggplot(Score_varience, aes(x=Year, y=Score_varience)) +
+ggplot(Score_variance, aes(x=Year, y=Score_variance)) +
   geom_point(size = 3) +
   geom_line(aes(x=as.numeric(Year))) +
   theme(axis.text.x = element_text(angle = 45, hjust=1)) +
@@ -142,3 +142,18 @@ p <- ggplot(Scores, aes(x=Year, y=Score_differential, color = Home, label2=Score
 plot <- ggplotly(p, tooltip = c('Home', 'Score_home', 'Score_away'))
 plot
 ```
+
+
+## Average score difference by season, boxplot
+```{r}
+Scores$Year <- as.factor(Scores$Year)
+
+ggplot(Scores, aes(x=Year, y=Score_differential)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=0.3)) +
+  ylab("Absolute Score Differential")
+
+with(Scores,tapply(Score_differential, Year, mean))
+
+```
+
