@@ -2,8 +2,8 @@
 title: "NFL 2002-2021 Score Differential"
 author: "Kenizzer"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -11,16 +11,16 @@ knitr::opts_chunk$set(echo = TRUE)
 library('ggpubr')
 library('emmeans')
 library('plotly')
-library('tidyverse'); packageVersion('tidyverse')
-library("MASS"); packageVersion('MASS')
-library("scales"); packageVersion('scales')
-library("caret"); packageVersion('caret')
-library("AppliedPredictiveModeling"); packageVersion('AppliedPredictiveModeling')
-library("ranger"); packageVersion('ranger')
-library("e1071"); packageVersion('e1071')
-library("randomForest"); packageVersion('randomForest')
-library("alluvial"); packageVersion('alluvial')
-library("matrixStats"); packageVersion("matrixStats")
+library('tidyverse')
+library("MASS")
+library("scales")
+library("caret")
+library("AppliedPredictiveModeling")
+library("ranger")
+library("e1071")
+library("randomForest")
+library("alluvial")
+library("matrixStats")
 theme_set(theme_pubr())
 ```
 
@@ -159,18 +159,17 @@ Home_win_pred <- MachineLearning_RF_ranger(Scores, "Home_win", 500)
 
 # It seems the model is really keying in on the number of running attempts
 # My best guess is when teams are ahead they run the ball to kill the clock
-# maybe this causes inflated run attepmt totals
+# maybe this causes inflated run attempt totals
 varImp(Home_win_pred$RF_model)
-
-varImpPlot(Home_win_pred$RF_model)
 
 plot(Home_win_pred[["VarImporance"]])
 
+Home_win_pred$CMatrixPLOT
+
+
+
 ggplot(Scores, aes(x = Home_win, y = rushing_attempts_away, fill = Home_win)) + geom_boxplot(outlier.shape = NA) + geom_point(position = position_jitterdodge(jitter.width = 0.8))
 ggplot(Scores, aes(x = Home_win, y = turnovers_away, fill = Home_win)) + geom_boxplot(outlier.shape = NA) + geom_point(position = position_jitterdodge(jitter.width = 0.8))
-
-
-
 ggplot(Scores, aes(x = Home_win, y = rushing_attempts_home, fill = Home_win)) + geom_boxplot(outlier.shape = NA) + geom_point(position = position_jitterdodge(jitter.width = 0.8))
 
 
