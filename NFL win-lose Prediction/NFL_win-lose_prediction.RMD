@@ -31,7 +31,7 @@ I added the 2021 data that was scrapped from <https://www.footballdb.com/games/i
 and 2002-2016 data from Reddit user **yuxbni76** <https://www.reddit.com/user/yuxbni76>
 
 ```{r}
-Scores <- read.csv("nfl_dataset_2002-2019week6.csv", header=TRUE, sep= ",")
+Scores <- read.csv("nfl_dataset_2002-2019week6.csv", header=TRUE, sep= ",", stringsAsFactors=FALSE)
 Scores$Home_win <- factor(Scores$score_home > Scores$score_away, labels=c("Home_loss", "Home_win"))
 summary(Scores)
 ```
@@ -154,37 +154,105 @@ MachineLearning_RF_ranger <- function(DF, GROUPING, TREES) {
 Home_win_pred <- MachineLearning_RF_ranger(Scores, "Home_win", 500)
 
 ```
-
+### Machine learning results
 ```{r}
-
 # It seems the model is really keying in on the number of running attempts
 # My best guess is when teams are ahead they run the ball to kill the clock
 # maybe this causes inflated run attempt totals
 varImp(Home_win_pred$RF_model)
-
 plot(Home_win_pred[["VarImporance"]])
 
+# Thankfully the model is fairly accurate.
+# 86% overall accuracy and 0.8376 F1
 Home_win_pred$CMatrixPLOT
 
+```
 
 
-ggplot(Scores, aes(x = Home_win, y = rushing_attempts_away, fill = Home_win)) + geom_boxplot(outlier.shape = NA) + geom_point(position = position_jitterdodge(jitter.width = 0.8))
-ggplot(Scores, aes(x = Home_win, y = turnovers_away, fill = Home_win)) + geom_boxplot(outlier.shape = NA) + geom_point(position = position_jitterdodge(jitter.width = 0.8))
-ggplot(Scores, aes(x = Home_win, y = rushing_attempts_home, fill = Home_win)) + geom_boxplot(outlier.shape = NA) + geom_point(position = position_jitterdodge(jitter.width = 0.8))
+```{r}
+
+# Testing out some new plot types 
+Win_loss_palette <- c( "#E74C3C","#2ECC71")
+
+
+# ggdist passing and rushing yards
+a <- ggplot(Scores,aes(x=rushing_yards_home, y = Home_win, fill=Home_win)) + ggdist::stat_dotsinterval(quantiles = 300, point_interval = "mode_hdci") + ylab(NULL) + scale_fill_manual(values = Win_loss_palette) + xlim(0,400)
+b <- ggplot(Scores,aes(x=passing_yards_home, y = Home_win, fill=Home_win)) + ggdist::stat_dotsinterval(quantiles = 300, point_interval = "mode_hdci") + ylab(NULL) + scale_fill_manual(values = Win_loss_palette) + xlim(0,550)
+c <- ggplot(Scores,aes(x=rushing_yards_away, y = Home_win, fill=Home_win)) + ggdist::stat_dotsinterval(quantiles = 300, point_interval = "mode_hdci") + ylab(NULL) + scale_fill_manual(values = Win_loss_palette) + xlim(0,400)
+d <- ggplot(Scores,aes(x=passing_yards_away, y = Home_win, fill=Home_win)) + ggdist::stat_dotsinterval(quantiles = 300, point_interval = "mode_hdci") + ylab(NULL) + scale_fill_manual(values = Win_loss_palette) + xlim(0,550)
+e <- ggarrange(a,b,c,d, nrow = 2, ncol = 2, common.legend = TRUE, align = 'hv', legend = 'right')
+ggsave("Rushing-passing_yards_vs_wins.png", e, height = 12, width = 12)
+
+# Density plots
+a <- ggplot(Scores,aes(x=rushing_yards_home, fill=Home_win)) + geom_density(alpha=0.25) + scale_fill_manual(values = Win_loss_palette) + theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank())
+b <- ggplot(Scores,aes(x=passing_yards_home, fill=Home_win)) + geom_density(alpha=0.25) + scale_fill_manual(values = Win_loss_palette) + theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank())
+c <- ggplot(Scores,aes(x=rushing_yards_away, fill=Home_win)) + geom_density(alpha=0.25) + scale_fill_manual(values = Win_loss_palette) + theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank())
+d <- ggplot(Scores,aes(x=passing_yards_away, fill=Home_win)) + geom_density(alpha=0.25) + scale_fill_manual(values = Win_loss_palette) + theme(axis.title.y = element_blank(), axis.text.y = element_blank(), axis.ticks.y = element_blank())
+e <- ggarrange(a,b,c,d, common.legend = TRUE, align = 'hv', legend = 'right')
+ggsave("Rushing-passing_yards_vs_wins_density_plot.png", e, height = 12, width = 12)
+
+# Rushing attempts tending to be a strong predictor of the outcome of the game.
+# Are you more successful with more rushing attempts? 
+# i.e., is the a positve corrlation between attempts and rushing yards.
+a <- ggplot(Scores, aes(x = Home_win, y = rushing_attempts_home, fill = Home_win)) + geom_point(position = position_jitterdodge(jitter.width = 1)) + geom_boxplot(outlier.shape = NA, alpha = 0.8) + scale_fill_manual(values = Win_loss_palette)
+b <- ggplot(Scores, aes(x = Home_win, y = rushing_attempts_away, fill = Home_win)) + geom_point(position = position_jitterdodge(jitter.width = 1)) + geom_boxplot(outlier.shape = NA, alpha = 0.8) + scale_fill_manual(values = Win_loss_palette)
+c<- ggarrange(a,b, common.legend = TRUE, align = 'hv', legend = 'right', nrow = 1)
+d <- ggplot(Scores, aes(x = rushing_attempts_home, y = rushing_yards_home, color = Home_win)) + geom_smooth(method = "lm") + scale_color_manual(values = Win_loss_palette)
+e <- ggplot(Scores, aes(x = rushing_attempts_away, y = rushing_yards_away, color = Home_win)) + geom_smooth(method = "lm") + scale_color_manual(values = Win_loss_palette)
+f <- ggarrange(d,e, common.legend = TRUE, align = 'hv', legend = 'right', nrow = 1)
+g <- ggarrange(c,f, nrow = 2)
+ggsave("Rushing_attempts_vs_wins_plus_correlation_yards_and_attempts.png", g, height = 12, width = 12)
 
 
 
+# Passing attempts vs wins and yards
+# Need to fix completions vs incompletions into seperate columns for this to work
+# a <- ggplot(Scores, aes(x = Home_win, y = passing_attempts_home, fill = Home_win)) + geom_point(position = position_jitterdodge(jitter.width = 1)) + geom_boxplot(outlier.shape = NA, alpha = 0.8) + scale_fill_manual(values = Win_loss_palette)
+# b <- ggplot(Scores, aes(x = Home_win, y = passing_attempts_away, fill = Home_win)) + geom_point(position = position_jitterdodge(jitter.width = 1)) + geom_boxplot(outlier.shape = NA, alpha = 0.8) + scale_fill_manual(values = Win_loss_palette)
+# c<- ggarrange(a,b, common.legend = TRUE, align = 'hv', legend = 'right', nrow = 1)
+# d <- ggplot(Scores, aes(x = passing_attempts_home, y = passing_yards_home, color = Home_win)) + geom_smooth(method = "lm") + scale_color_manual(values = Win_loss_palette)
+# e <- ggplot(Scores, aes(x = passing_attempts_away, y = passing_yards_away, color = Home_win)) + geom_smooth(method = "lm") + scale_color_manual(values = Win_loss_palette)
+# f <- ggarrange(d,e, common.legend = TRUE, align = 'hv', legend = 'right', nrow = 1)
+# g <- ggarrange(c,f, nrow = 2)
+# ggsave("Passing_attempts_vs_wins_plus_correlation_yards_and_attempts.png", g, height = 12, width = 12)
 
-anova(lm(passing_yards_home ~ Home_win, data = Scores))
+Scores$sco
 
-ggplot(Scores, aes(x = Home_win, y = passing_yards_home, fill = Home_win)) + geom_boxplot(outlier.shape = NA) + geom_point(position = position_jitterdodge(jitter.width = 0.8))
-ggplot(Scores, aes(x = Home_win, y = rushing_yards_home, fill = Home_win)) + geom_boxplot(outlier.shape = NA) + geom_point(position = position_jitterdodge(jitter.width = 0.8))
+# Turnovers and their correlation with score and time of possession
+a <- ggplot(Scores, aes(x = turnovers_away, y = score_home, color = Home_win)) + geom_smooth(method = "lm")+ scale_color_manual(values = Win_loss_palette)
+b <- ggplot(Scores, aes(x = turnovers_home, y = score_away, color = Home_win)) + geom_smooth(method = "lm")+ scale_color_manual(values = Win_loss_palette)
+
+#https://stackoverflow.com/questions/5186972/how-to-convert-time-mmss-to-decimal-form-in-r
+Scores$possession_home <- sapply(strsplit(Scores$possession_home,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+Scores$possession_away <- sapply(strsplit(Scores$possession_away,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+c <- ggplot(Scores, aes(x = turnovers_away, y = possession_home, color = Home_win)) + geom_smooth(method = "lm")+ scale_color_manual(values = Win_loss_palette)
+d <- ggplot(Scores, aes(x = turnovers_home, y = possession_away, color = Home_win)) + geom_smooth(method = "lm")+ scale_color_manual(values = Win_loss_palette)
+e <- ggarrange(a,b,d,c, common.legend = TRUE, legend = 'right', nrow = 2, ncol = 2)
+ggsave("Correlations_turnovers_with_score_timeofpossession.png", e, height = 12, width = 12)
 
 
+# Cool plots passing vs rushing yards
+a <- ggplot(Scores, aes(x = rushing_yards_home , y = passing_yards_home, color = Home_win))+ geom_point(alpha = 0.8) + scale_color_manual(values = Win_loss_palette) + geom_vline(xintercept = 155, linetype = "dashed") + annotate("text", x=230, y=500, label= "50th percentile Home wins")
+b <- ggplot(Scores, aes(x = rushing_yards_away , y = passing_yards_away, color = Home_win))+ geom_point(alpha = 0.8) + scale_color_manual(values = Win_loss_palette) + geom_vline(xintercept = 70, linetype = "dashed") + annotate("text", x=10, y=500, label= "50th percentile Home losses")
+c <- ggarrange(a,b, common.legend = TRUE, legend = 'right', nrow = 2, align='hv')
+ggsave("Passing_vs_rushing_yards.png", c, height = 8, width = 12)
 
 
+# 50/50 odds
+summary(Scores[Scores$rushing_yards_home < 155,]$Home_win) / sum(summary(Scores[Scores$rushing_yards_home < 155,]$Home_win)) * 100
+summary(Scores[Scores$rushing_yards_away > 70,]$Home_win) / sum(summary(Scores[Scores$rushing_yards_away > 70,]$Home_win)) * 100
 
-
+# A bit of odds/stats
 # How often do you win if you rush for 100 yards
 summary(Scores[Scores$rushing_yards_home > 100,]$Home_win) / sum(summary(Scores[Scores$rushing_yards_home > 100,]$Home_win)) * 100
 # How often do you win if you rush for 150 yards
@@ -195,10 +263,4 @@ summary(Scores[Scores$rushing_yards_home > 200,]$Home_win) / sum(summary(Scores[
 summary(Scores[Scores$rushing_yards_home > 250,]$Home_win) / sum(summary(Scores[Scores$rushing_yards_home > 250,]$Home_win)) * 100
 # How often do you win if you rush for 300 yards
 summary(Scores[Scores$rushing_yards_home > 300,]$Home_win) / sum(summary(Scores[Scores$rushing_yards_home > 300,]$Home_win)) * 100
-
-
-ggplot(Scores, aes(x = rushing_yards_home , y = passing_yards_home)) + geom_smooth() + geom_point(aes(color = Home_win), alpha = 0.8)
-ggplot(Scores, aes(x = rushing_yards_away , y = passing_yards_away)) + geom_smooth() + geom_point(aes(color = Home_win), alpha = 0.8)
-
-
 ```

@@ -4,7 +4,7 @@
 ***Current state: Machine learning data object built but needs cleaning up before analysis***
 
 
-### NFL Score differentials for all NFL teams 2017-Current.
+### NFL margin of victory for all NFL teams 2017-Current.
 ***Current state: Get scores for games farther back***
 
 
