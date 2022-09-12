@@ -1,7 +1,7 @@
 # Side projects
 
 ### Google fit step data
-***Current state: We are tired, no more data needed***
+***Current state: Get to stepping, needs more data***
 
 
 ### Lyrics for US punk rock bands in a machine learning data object.
