@@ -1,0 +1,60 @@
+---
+title: "Google fit step data 2021-2022"
+author: "Joel F. Swift"
+date: "09/12/2022"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(lubridate)
+library(ggplot2)
+library(ggpubr)
+theme_set(theme_pubr())
+```
+
+#### Load data
+```{r}
+steps.df <- read.csv("Daily activity metrics.csv", header = TRUE)
+data.frame(steps.df$Step.count, steps.df$Date)[1:10,]
+```
+
+#### Formatting dates with lubridate
+```{r}
+steps.df$Date <- ymd(steps.df$Date)
+steps.df$day_of_week <- wday(steps.df$Date, label = TRUE)
+steps.df$month <- month(steps.df$Date, label = TRUE)
+steps.df$year <- year(steps.df$Date)
+
+# check that things look okay
+tapply(steps.df$month, steps.df$year, summary)
+#tapply(steps.df$day_of_week, steps.df$month, summary)
+```
+#### Quick plots
+```{r}
+levels(steps.df$day_of_week)
+
+a <- ggplot(steps.df,aes(x= day_of_week, y = Step.count, fill=day_of_week)) +
+  ggdist::stat_dotsinterval(quantiles = 75, point_interval = "mode_hdci") +
+  ylab("Step Count") + xlab(NULL) + theme(legend.position = "none") +
+  scale_y_continuous(breaks = seq(0, 10000, by = 1000)) 
+b <- ggplot(steps.df, aes(x = day_of_week , y = Step.count, fill = day_of_week)) +
+  geom_jitter(width = 0.2) + geom_boxplot(outlier.shape = NA, alpha = 0.8) +
+  scale_y_continuous(breaks = seq(0, 10000, by = 1000)) + ylab("Step Count") +
+  xlab(NULL) + theme(legend.position = "none")
+c <- ggplot(steps.df, aes(x = Date , y = Step.count))  + geom_point() +
+  geom_smooth(color = "green") + scale_y_continuous(breaks = seq(0, 10000, by = 1000)) +
+  ylab("Step Count") + xlab(NULL) 
+d <- ggplot(steps.df, aes(x = month , y = Step.count)) + geom_boxplot(outlier.shape = NA) +
+  geom_jitter(width = 0.2) + scale_y_continuous(breaks = seq(0, 10000, by = 1000)) +
+  ylab("Step Count") 
+e <- ggarrange(a,b,c,d, nrow = 2, ncol = 2, align = 'hv')
+ggsave("Step count by month, day, and date.png", e , height = 8, width = 12)
+a
+b
+c
+d
+```
