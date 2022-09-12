@@ -1,5 +1,8 @@
 # Side projects
 
+### Google fit step data
+***Current state: Get to stepping, needs more data***
+
 ### Lyrics for US punk rock bands in a machine learning data object.
 ***Current state: Machine learning data object built but needs cleaning up before analysis***
 
