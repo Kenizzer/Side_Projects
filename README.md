@@ -15,6 +15,6 @@
 * Current state: Get scores for games farther back
 
 
-### NFL boxscore stats scrapped from ESPN.com 2002-2019.*
+### NFL boxscore stats scrapped from ESPN.com 2002-2019.
 
 * Current state: Making interactive vizualizations with ggplotly and exploring data
