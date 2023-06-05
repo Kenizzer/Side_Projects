@@ -1,8 +1,4 @@
-getwd()
-setwd("/home/kenizzer/Downloads")
-
 x <- read.csv("Zipfs_law.tsv", header = FALSE, sep = "\t")
-
 x2 <- cbind(x, 1:nrow(x))
 
 ###
