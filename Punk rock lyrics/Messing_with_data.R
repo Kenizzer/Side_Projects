@@ -35,11 +35,41 @@ merged_df[,6:32] <- NULL
 merged_df[,6:35063] <- (merged_df[,6:35063] / rowSums(merged_df[,6:35063], na.rm = TRUE)) # convert to percentage
 
 
+
+A <- ggplot(merged_df, aes(x = UPPER_POLITICAL, y = freeway, fill = UPPER_POLITICAL)) +
+  ggtitle(label = "Freeway word usage") +
+  geom_point(position = position_jitterdodge(jitter.width = 0.1)) +
+  geom_boxplot(alpha = 0.8, outlier.colour = NA, color = "black") +
+  ylab("% of lyric word count") +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1), legend.position = "none")
+
+B <- ggplot(merged_df, aes(x = UPPER_POLITICAL, y = highway, fill = UPPER_POLITICAL)) +
+  ggtitle(label = "Highway word usage") +
+  geom_point(position = position_jitterdodge(jitter.width = 0.1)) +
+  geom_boxplot(alpha = 0.8, outlier.colour = NA, color = "black") +
+  ylab("% of lyric word count") +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1), legend.position = "none")
+
+ggarrange(A,B, align = 'hv', nrow =2)
+
+
+ggplot(merged_df, aes(x = UPPER_POLITICAL, y = coke, fill = UPPER_POLITICAL)) +
+  geom_point(position = position_jitterdodge(jitter.width = 0.1)) +
+  geom_boxplot(alpha = 0.8, outlier.colour = NA, color = "black") +
+  ylab("Usage of `coke`, as a percentage of lyric word count") +
+  scale_y_continuous(labels = scales::percent) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1), legend.position = "none")
+
+
+
 ggplot(merged_df, aes(x = UPPER_POLITICAL, y = fuck, fill = UPPER_POLITICAL)) +
   geom_point(position = position_jitterdodge(jitter.width = 0.1)) +
   geom_boxplot(alpha = 0.8, outlier.colour = NA, color = "black") +
+  ylab("Usage of `fuck`, as a percentage of lyric word count") +
   scale_y_continuous(labels = scales::percent) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1), legend.position = "none")
 
 ggplot(merged_df, aes(x = UPPER_POLITICAL, y = love, fill = UPPER_POLITICAL)) +
   geom_point(position = position_jitterdodge(jitter.width = 0.1)) +
