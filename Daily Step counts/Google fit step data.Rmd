@@ -1,11 +1,11 @@
 ---
-title: "Google fit step data 2021-2022"
+title: "Google fit step data 2021-2024"
 author: "Joel F. Swift"
 date: "09/12/2022"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(lubridate)
 library(ggplot2)
 library(ggpubr)
-theme_set(theme_pubr())
+theme_set(theme_bw())
 ```
 
 #### Load data
@@ -40,16 +40,16 @@ levels(steps.df$day_of_week)
 a <- ggplot(steps.df,aes(x= day_of_week, y = Step.count, fill=day_of_week)) +
   ggdist::stat_dotsinterval(quantiles = 75, point_interval = "mode_hdci") +
   ylab("Step Count") + xlab(NULL) + theme(legend.position = "none") +
-  scale_y_continuous(breaks = seq(0, 10000, by = 1000)) 
+  scale_y_continuous(breaks = seq(0, 20000, by = 1000)) 
 b <- ggplot(steps.df, aes(x = day_of_week , y = Step.count, fill = day_of_week)) +
   geom_jitter(width = 0.2) + geom_boxplot(outlier.shape = NA, alpha = 0.8) +
-  scale_y_continuous(breaks = seq(0, 10000, by = 1000)) + ylab("Step Count") +
+  scale_y_continuous(breaks = seq(0, 25000, by = 1000)) + ylab("Step Count") +
   xlab(NULL) + theme(legend.position = "none")
 c <- ggplot(steps.df, aes(x = Date , y = Step.count))  + geom_point() +
-  geom_smooth(color = "green") + scale_y_continuous(breaks = seq(0, 10000, by = 1000)) +
+  geom_smooth(color = "green") + scale_y_continuous(breaks = seq(0, 25000, by = 1000)) +
   ylab("Step Count") + xlab(NULL) 
-d <- ggplot(steps.df, aes(x = month , y = Step.count)) + geom_boxplot(outlier.shape = NA) +
-  geom_jitter(width = 0.2) + scale_y_continuous(breaks = seq(0, 10000, by = 1000)) +
+d <- ggplot(steps.df, aes(x = month , y = Step.count)) + geom_jitter(width = 0.2) +
+  geom_boxplot(outlier.shape = NA, alpha = 0.8) + scale_y_continuous(breaks = seq(0, 25000, by = 1000)) +
   ylab("Step Count") 
 e <- ggarrange(a,b,c,d, nrow = 2, ncol = 2, align = 'hv')
 ggsave("Step count by month, day, and date.png", e , height = 8, width = 12)
